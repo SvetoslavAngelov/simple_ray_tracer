@@ -13,7 +13,7 @@ fn colour(r: &Ray, shapes: &Shapes) -> Vec3 {
     use shape::Hitable;
     let mut rec: Record = Record::default();
 
-    if shapes.hit(&mut rec, r, 0.0, 100000.0){
+    if shapes.hit(&mut rec, r, 0.0, 10000.0){
         return Vec3::new(rec.normal.x() + 1.0, rec.normal.y() + 1.0, rec.normal.z() + 1.0) * 0.5; 
     }
     else {
@@ -35,8 +35,8 @@ fn render() {
     let origin: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 
     let shapes: Shapes = Shapes::new(vec![
-        Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5), 
-        Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)], 2);
+        Sphere::new(Vec3::new(0.0, 101.0, -1.0), 100.0), 
+        Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)], 2);
 
     for i in 0..WIDTH{
         for j in 0..HEIGHT{

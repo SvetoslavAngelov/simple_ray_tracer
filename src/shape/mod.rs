@@ -55,7 +55,7 @@ impl Hitable for Sphere{
         let oc: Vec3 = r.origin() - self.centre;
         let a: f32 = Vec3::dot(&r.direction(), &r.direction());
         let b: f32 = Vec3::dot(&oc, &r.direction());
-        let c: f32 = Vec3::dot(&oc, &oc);
+        let c: f32 = Vec3::dot(&oc, &oc) - (self.radius * self.radius);
         let discriminant: f32 = (b * b) - (a * c);
         
         if discriminant > 0.0 {
@@ -85,7 +85,7 @@ impl Hitable for Shapes{
         let mut closest = t_max; 
 
         for i in 0..self.size{
-            if self.list[i].hit(rec, r, t_min, t_max){
+            if self.list[i].hit(&mut temp_rec, r, t_min, t_max){
                 is_hit = true;
                 closest = temp_rec.t;
                 *rec = temp_rec.clone();
