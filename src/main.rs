@@ -1,6 +1,8 @@
 mod vec;
 mod ray;
 mod shape;
+mod camera;
+extern crate rand;
 extern crate image;
 
 type Vec3 = vec::Vec3;
@@ -8,13 +10,26 @@ type Ray = ray::Ray;
 type Shapes = shape::Shapes; 
 type Sphere = shape::Sphere;
 type Record = shape::Record;
+type Camera = camera::Camera;
+
+fn random_unit_sphere() -> Vec3{
+    let mut p: Vec3 = Vec3::default();
+    if 1.0 <= p.magnitude() * p.magnitude() {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        p = Vec3::new(rng.gen_range(0.0, 1.0), rng.gen_range(0.0, 1.0), rng.gen_range(0.0, 1.0)) * 2.0 -
+                        Vec3::new(1.0, 1.0, 1.0);
+    }
+    return p;
+}
 
 fn colour(r: &Ray, shapes: &Shapes) -> Vec3 {
     use shape::Hitable;
     let mut rec: Record = Record::default();
 
     if shapes.hit(&mut rec, r, 0.0, 10000.0){
-        return Vec3::new(rec.normal.x() + 1.0, rec.normal.y() + 1.0, rec.normal.z() + 1.0) * 0.5; 
+        let target: Vec3 = rec.p + rec.normal + random_unit_sphere();
+        return colour(&Ray::new(&rec.p, &(target - rec.p)), shapes) * 0.5;
     }
     else {
         let unit_direction: Vec3 = vec::make_unit_vector(&r.direction());
@@ -27,24 +42,29 @@ fn colour(r: &Ray, shapes: &Shapes) -> Vec3 {
 fn render() {
     const WIDTH: u32 = 200; 
     const HEIGHT: u32 = 100; 
+    const SMOOTH: u32 = 100; 
 
     let mut framebuffer = image::ImageBuffer::new(WIDTH, HEIGHT);
-    let upper_left_corner: Vec3 = Vec3::new(-2.0, -1.0, -1.0);
-    let horizontal: Vec3 = Vec3::new(4.0, 0.0, 0.0);
-    let vertical: Vec3 = Vec3::new(0.0, 2.0, 0.0);
-    let origin: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 
     let shapes: Shapes = Shapes::new(vec![
         Sphere::new(Vec3::new(0.0, 101.0, -1.0), 100.0), 
         Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)], 2);
 
+    let cam: Camera = Camera::default();
+
     for i in 0..WIDTH{
         for j in 0..HEIGHT{
-            let u: f32 = i as f32 / WIDTH as f32;
-            let v: f32 = j as f32 / HEIGHT as f32;
-            let r: Ray = Ray::new(&origin, &(upper_left_corner + horizontal * u + vertical * v));
-            let colour: Vec3 = colour(&r, &shapes);
-            framebuffer[(i,j)] = image::Rgb([(colour.x() * 255.0) as u8, (colour.y() * 255.0) as u8, (colour.z() * 255.0) as u8]);
+            let mut col: Vec3 = Vec3::new(0.0, 0.0, 0.0);
+            for k in 0..SMOOTH{
+                use rand::Rng;
+                let mut rng = rand::thread_rng();
+                let u: f32 = (i as f32 + rng.gen_range(0.0, 1.0)) / WIDTH as f32;
+                let v: f32 = (j as f32 + rng.gen_range(0.0, 1.0)) / HEIGHT as f32;
+                let r: Ray = cam.get_ray(u, v);
+                //col = colour(&r, &shapes) + col;
+            }
+            col = col / SMOOTH as f32;
+            framebuffer[(i,j)] = image::Rgb([(col.x() * 255.0) as u8, (col.y() * 255.0) as u8, (col.z() * 255.0) as u8]);
         }
     }
     framebuffer.save("output.png").unwrap();

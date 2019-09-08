@@ -5,14 +5,15 @@ use std::vec::Vec;
 use std::default::Default; 
 use std::clone::Clone;
 
+
 pub trait Hitable{
     fn hit(&self, rec: &mut Record, r: &Ray, t_min: f32, t_max: f32) -> bool;
 }
 
 #[derive(Clone)]
 pub struct Record{
-    t: f32,
-    p: Vec3,
+    pub t: f32,
+    pub p: Vec3,
     pub normal: Vec3
 }
 
