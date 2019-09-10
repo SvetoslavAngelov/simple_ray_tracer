@@ -1,6 +1,7 @@
 #![allow(unused)]
 use crate::ray::Ray;
 use crate::vec::Vec3;
+
 use std::vec::Vec;
 use std::default::Default; 
 use std::clone::Clone;

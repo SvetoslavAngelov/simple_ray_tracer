@@ -1,4 +1,6 @@
 #![allow(unused)]
+extern crate rand;
+
 use std::ops::Mul;
 use std::ops::Div;
 use std::ops::Add;
@@ -52,6 +54,14 @@ impl Vec3{
 
 pub fn make_unit_vector(a: &Vec3) -> Vec3 {
         return a.normalise();
+}
+
+pub fn random_unit_sphere() -> Vec3{
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    let p: Vec3 = Vec3::new(rng.gen_range(0.0, 1.0), rng.gen_range(0.0, 1.0), rng.gen_range(0.0, 1.0)) * 2.0 -
+                    Vec3::new(1.0, 1.0, 1.0);
+    return p;
 }
 
 impl Clone for Vec3{
