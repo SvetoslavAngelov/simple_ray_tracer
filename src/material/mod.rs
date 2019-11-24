@@ -5,14 +5,16 @@ use crate::shape::Record;
 
 type Vec3 = vec::Vec3;
 
-pub trait Material{
+pub trait Material : Sized{
     fn scatter(&self, rec: &Record, ray_in: &Ray, ray_scattered: &mut Ray, attenuation: &mut Vec3) -> bool;
 }
 
+#[derive(Default)]
 pub struct Diffuse{
     albedo: Vec3
 }
 
+#[derive(Default)]
 pub struct Specular{
     albedo: Vec3
 }

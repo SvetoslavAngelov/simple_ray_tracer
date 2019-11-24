@@ -1,6 +1,7 @@
 #![allow(unused)]
 use crate::vec::Vec3;
 
+#[derive(Default)]
 pub struct Ray{  
     a: Vec3,
     b: Vec3

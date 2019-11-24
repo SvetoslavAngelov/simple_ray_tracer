@@ -1,26 +1,34 @@
 #![allow(unused)]
 use crate::ray::Ray;
 use crate::vec::Vec3;
+use crate::material;
 
 use std::vec::Vec;
 use std::default::Default; 
 use std::clone::Clone;
 
-
 pub trait Hitable{
     fn hit(&self, rec: &mut Record, r: &Ray, t_min: f32, t_max: f32) -> bool;
+}
+
+#[derive(Clone, PartialEq)]
+pub enum MaterialType{
+    Diffuse, 
+    Specular,
 }
 
 #[derive(Clone)]
 pub struct Record{
     pub t: f32,
     pub p: Vec3,
-    pub normal: Vec3
+    pub normal: Vec3,
+    pub material: MaterialType
 }
 
 pub struct Sphere{
     centre: Vec3,
-    radius: f32
+    radius: f32, 
+    material: MaterialType
 }
 
 pub struct Shapes{
@@ -29,8 +37,8 @@ pub struct Shapes{
 }
 
 impl Sphere{
-    pub fn new(centre: Vec3, r: f32) -> Sphere{
-        return Sphere{ centre: centre, radius: r };
+    pub fn new(centre: Vec3, r: f32, material: MaterialType) -> Sphere{
+        return Sphere{ centre: centre, radius: r, material };
     }
 }
 
@@ -42,13 +50,13 @@ impl Shapes{
 
 impl Record{
     pub fn new(t: f32, p: Vec3, normal: Vec3) -> Record{
-        return Record{ t: t, p: p, normal: normal };
+        return Record{ t: t, p: p, normal: normal, material: MaterialType::Diffuse };
     }
 }
 
 impl Default for Record{
     fn default() -> Record{
-        return Record{ t: 0.0, p: Vec3::new(0.0, 0.0, 0.0), normal:Vec3::new(0.0, 0.0, 0.0)};
+        return Record{ t: 0.0, p: Vec3::new(0.0, 0.0, 0.0), normal: Vec3::new(0.0, 0.0, 0.0), material: MaterialType::Diffuse };
     }
 }
 
@@ -66,6 +74,7 @@ impl Hitable for Sphere{
                 rec.t = temp; 
                 rec.p = r.point_at_parameter(rec.t);
                 rec.normal = (rec.p - self.centre) / self.radius;
+                rec.material = self.material.clone();
                 return true;
             }
             temp = (-b + discriminant.sqrt()) / a;
@@ -73,6 +82,7 @@ impl Hitable for Sphere{
                 rec.t = temp; 
                 rec.p = r.point_at_parameter(rec.t);
                 rec.normal = (rec.p - self.centre) / self.radius;
+                rec.material = self.material.clone();
                 return true;
             }
         }
